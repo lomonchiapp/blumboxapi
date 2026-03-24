@@ -25,6 +25,7 @@ import { PaymentGatewayModule } from "./payment-gateway/payment-gateway.module";
 import { EcommerceModule } from "./ecommerce/ecommerce.module";
 import { ContainersModule } from "./containers/containers.module";
 import { DgaModule } from "./dga/dga.module";
+import { AnalyticsModule } from "./analytics/analytics.module";
 import { AuditModule } from "./common/audit/audit.module";
 import { ProblemJsonExceptionFilter } from "./common/filters/problem-json.filter";
 import { RequestLoggerMiddleware } from "./common/middleware/request-logger.middleware";
@@ -61,6 +62,7 @@ import { RequestLoggerMiddleware } from "./common/middleware/request-logger.midd
     EcommerceModule,
     ContainersModule,
     DgaModule,
+    AnalyticsModule,
     HealthModule,
   ],
   providers: [{ provide: APP_FILTER, useClass: ProblemJsonExceptionFilter }],
