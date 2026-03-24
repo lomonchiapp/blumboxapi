@@ -27,7 +27,8 @@ async function bootstrap() {
       { path: "health/live", method: RequestMethod.GET },
       { path: "health/ready", method: RequestMethod.GET },
       { path: "docs", method: RequestMethod.GET },
-      { path: "docs-json", method: RequestMethod.GET },
+      { path: "swagger", method: RequestMethod.GET },
+      { path: "swagger-json", method: RequestMethod.GET },
       { path: "openapi.json", method: RequestMethod.GET },
     ],
   });
@@ -55,7 +56,7 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup("docs", app, document, {
+  SwaggerModule.setup("swagger", app, document, {
     jsonDocumentUrl: "openapi.json",
     swaggerOptions: { persistAuthorization: true },
   });
@@ -63,7 +64,8 @@ async function bootstrap() {
   const port = config.get<number>("port") ?? 3001;
   await app.listen(port);
   console.warn(`Blumbox API listening on http://localhost:${port}`);
-  console.warn(`OpenAPI: http://localhost:${port}/docs`);
+  console.warn(`Documentación: http://localhost:${port}/docs`);
+  console.warn(`Swagger UI: http://localhost:${port}/swagger`);
 }
 
 bootstrap();

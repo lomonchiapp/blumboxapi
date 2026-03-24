@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blumbox Courier API v1 — Documentacion</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg-dark:#0A0E27;--bg-code:#0D1230;--bg-white:#FFFFFF;--accent:#6C63FF;--accent-light:#8B83FF;--text:#1E293B;--text-light:#64748B;--text-code:#E2E8F0;--border:#E2E8F0;--get:#22C55E;--post:#3B82F6;--patch:#F59E0B;--delete:#EF4444;--sidebar-w:260px;--font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;--font-mono:"SF Mono",SFMono-Regular,Consolas,"Liberation Mono",Menlo,monospace}
+html{scroll-behavior:smooth;scroll-padding-top:24px}
+body{font-family:var(--font-sans);color:var(--text);background:var(--bg-white);line-height:1.6;font-size:15px}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* SIDEBAR */
+.sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:var(--bg-dark);overflow-y:auto;z-index:100;padding:24px 0}
+.sidebar::-webkit-scrollbar{width:4px}
+.sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:4px}
+.sidebar-brand{padding:0 24px 20px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:12px}
+.sidebar-brand h1{font-size:20px;font-weight:800;color:#fff;letter-spacing:2px}
+.sidebar-brand span{font-size:12px;color:var(--accent-light);display:block;margin-top:2px}
+.sidebar-group{padding:8px 0}
+.sidebar-group-title{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,.35);padding:8px 24px 4px;font-weight:700}
+.sidebar a{display:block;padding:6px 24px;font-size:13px;color:rgba(255,255,255,.6);transition:all .15s}
+.sidebar a:hover,.sidebar a.active{color:#fff;background:rgba(108,99,255,.15);text-decoration:none}
+
+/* MAIN */
+.main{margin-left:var(--sidebar-w)}
+
+/* SECTION */
+.section{display:grid;grid-template-columns:1fr 1fr;min-height:auto;border-bottom:1px solid var(--border)}
+.section.full{grid-template-columns:1fr}
+.section-left{padding:40px 48px}
+.section-right{background:var(--bg-dark);padding:40px 32px;color:var(--text-code)}
+.section-right h4{font-size:13px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;margin-top:24px}
+.section-right h4:first-child{margin-top:0}
+
+h2{font-size:28px;font-weight:700;color:var(--accent);margin-bottom:16px}
+h3{font-size:20px;font-weight:600;color:var(--text);margin-bottom:12px;margin-top:28px}
+h3:first-child{margin-top:0}
+p{margin-bottom:12px}
+.muted{color:var(--text-light);font-size:13px}
+
+/* METHOD BADGES */
+.method{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;color:#fff;font-family:var(--font-mono);letter-spacing:.5px;vertical-align:middle}
+.method.get{background:var(--get)}.method.post{background:var(--post)}.method.patch{background:var(--patch)}.method.delete{background:var(--delete)}
+.endpoint-path{font-family:var(--font-mono);font-size:14px;font-weight:600;color:var(--text);vertical-align:middle;margin-left:6px}
+
+.endpoint-block{margin:24px 0;padding:20px 0;border-top:1px solid var(--border)}
+.endpoint-block:first-of-type{border-top:none;padding-top:0}
+
+/* TABLES */
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px}
+th{text-align:left;padding:8px 12px;background:#F8FAFC;border-bottom:2px solid var(--border);font-weight:600;color:var(--text-light);text-transform:uppercase;font-size:11px;letter-spacing:.5px}
+td{padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+td code{background:#F1F5F9;padding:1px 5px;border-radius:3px;font-size:12px;font-family:var(--font-mono)}
+.required{color:var(--delete);font-weight:600;font-size:11px}
+.optional{color:var(--text-light);font-size:11px}
+
+/* CODE BLOCKS */
+.code-block{position:relative;background:#060A1F;border-radius:8px;margin:8px 0 16px;overflow:hidden}
+.code-block-header{display:flex;justify-content:space-between;align-items:center;padding:8px 16px;background:rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.06)}
+.code-block-header span{font-size:11px;color:rgba(255,255,255,.4);font-family:var(--font-mono)}
+.copy-btn{background:none;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5);padding:3px 10px;border-radius:4px;font-size:11px;cursor:pointer;font-family:var(--font-sans);transition:all .15s}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent)}
+.code-block pre{padding:16px;overflow-x:auto;font-size:13px;line-height:1.6;font-family:var(--font-mono)}
+.code-block pre code{color:var(--text-code)}
+.code-block pre .hl-key{color:#7DD3FC}.code-block pre .hl-str{color:#86EFAC}.code-block pre .hl-num{color:#FDE68A}.code-block pre .hl-comment{color:rgba(255,255,255,.3)}
+
+/* STATE MACHINE */
+.state-flow{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin:16px 0;font-family:var(--font-mono);font-size:12px}
+.state-flow .state{background:var(--accent);color:#fff;padding:4px 10px;border-radius:4px;font-weight:600;white-space:nowrap}
+.state-flow .arrow{color:var(--text-light);font-weight:700}
+.state-flow .state.exception{background:var(--delete)}
+
+/* ALERT */
+.alert{padding:12px 16px;border-radius:6px;margin:16px 0;font-size:13px;border-left:4px solid}
+.alert.info{background:#EFF6FF;border-color:var(--post);color:#1E40AF}
+.alert.warn{background:#FFFBEB;border-color:var(--patch);color:#92400E}
+
+/* BASE URL */
+.base-url{background:#F8FAFC;border:1px solid var(--border);border-radius:8px;padding:12px 16px;font-family:var(--font-mono);font-size:14px;margin:12px 0;display:flex;align-items:center;gap:8px}
+.base-url .label{font-size:11px;text-transform:uppercase;color:var(--text-light);font-family:var(--font-sans);font-weight:600;letter-spacing:.5px}
+
+/* RESPONSIVE */
+@media(max-width:1100px){
+  .sidebar{display:none}
+  .main{margin-left:0}
+  .section{grid-template-columns:1fr}
+  .section-left{padding:32px 24px}
+  .section-right{padding:24px}
+}
+@media(min-width:1101px){
+  .mobile-nav{display:none}
+}
+.mobile-nav{position:sticky;top:0;z-index:90;background:var(--bg-dark);padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+.mobile-nav h1{color:#fff;font-size:16px;letter-spacing:1px}
+.mobile-nav button{background:none;border:none;color:#fff;font-size:24px;cursor:pointer}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <h1>BLUMBOX</h1>
+    <span>Courier API v1</span>
+  </div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-title">General</div>
+    <a href="#primeros-pasos">Primeros Pasos</a>
+    <a href="#autenticacion">Autenticacion</a>
+  </div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-title">Recursos</div>
+    <a href="#clientes">Clientes y Casilleros</a>
+    <a href="#envios">Envios (Shipments)</a>
+    <a href="#tracking">Eventos de Tracking</a>
+    <a href="#pre-alertas">Pre-Alertas</a>
+    <a href="#recepciones">Recepciones</a>
+    <a href="#sucursales">Sucursales</a>
+  </div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-title">Utilidades</div>
+    <a href="#calculadora">Calculadora de Tarifas</a>
+    <a href="#rate-tables">Tablas de Tarifas</a>
+    <a href="#notificaciones">Notificaciones</a>
+    <a href="#webhooks">Webhooks</a>
+  </div>
+  <div class="sidebar-group">
+    <div class="sidebar-group-title">Referencia</div>
+    <a href="#fases-tracking">Fases de Tracking</a>
+    <a href="#errores">Errores</a>
+  </div>
+</nav>
+
+<!-- MOBILE NAV -->
+<div class="mobile-nav">
+  <h1>BLUMBOX API</h1>
+</div>
+
+<div class="main">
+
+<!-- ==================== PRIMEROS PASOS ==================== -->
+<div class="section" id="primeros-pasos">
+<div class="section-left">
+  <h2>Primeros Pasos</h2>
+  <p>La API de Blumbox es una plataforma courier <strong>multi-tenant</strong> que permite a operadores de logistica gestionar clientes, casilleros, envios, tracking, recepciones y facturacion desde una sola integracion REST.</p>
+
+  <div class="base-url">
+    <span class="label">Base URL</span>
+    <code>https://api.blumbox.do/v1</code>
+  </div>
+
+  <h3>Principios generales</h3>
+  <p>Todas las solicitudes y respuestas utilizan <strong>JSON</strong> (<code>Content-Type: application/json</code>). Las fechas se expresan en formato ISO 8601 con zona UTC.</p>
+
+  <h3>Autenticacion</h3>
+  <p>La API soporta tres metodos de autenticacion segun el tipo de consumidor:</p>
+  <table>
+    <tr><th>Metodo</th><th>Uso tipico</th><th>Header</th></tr>
+    <tr><td><code>API Key</code></td><td>Integraciones server-to-server</td><td><code>X-Api-Key</code></td></tr>
+    <tr><td><code>JWT Operador</code></td><td>Dashboard, operadores</td><td><code>Authorization: Bearer ...</code></td></tr>
+    <tr><td><code>JWT Cliente</code></td><td>App movil, portal cliente</td><td><code>Authorization: Bearer ...</code></td></tr>
+  </table>
+
+  <h3>Rate Limiting</h3>
+  <p>Todas las rutas estan limitadas a <strong>100 solicitudes por minuto</strong> por IP / API Key. Al exceder el limite recibiras un <code>429 Too Many Requests</code>.</p>
+
+  <h3>Paginacion</h3>
+  <p>Los endpoints de listado aceptan los parametros <code>page</code> (default 1) y <code>limit</code> (default 20, max 100). La respuesta incluye un objeto <code>meta</code> con informacion de paginacion.</p>
+</div>
+<div class="section-right">
+  <h4>Ejemplo de solicitud</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>bash</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>curl -X GET https://api.blumbox.do/v1/shipments \
+  -H "X-Api-Key: blx_live_abc123..." \
+  -H "X-Tenant-Id: uuid-del-tenant" \
+  -H "Content-Type: application/json"</code></pre>
+  </div>
+
+  <h4>Respuesta paginada</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>json</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>{
+  "data": [ ... ],
+  "meta": {
+    "page": 1,
+    "limit": 20,
+    "total": 142,
+    "totalPages": 8
+  }
+}</code></pre>
+  </div>
+</div>
+</div>
+
+<!-- ==================== AUTENTICACION ==================== -->
+<div class="section" id="autenticacion">
+<div class="section-left">
+  <h2>Autenticacion</h2>
+
+  <h3>API Key (Operadores / Integraciones)</h3>
+  <p>Las API Keys se crean desde el dashboard del operador. Se envian en el header <code>X-Api-Key</code> junto con el <code>X-Tenant-Id</code>. Las keys de produccion comienzan con <code>blx_live_</code> y las de prueba con <code>blx_test_</code>.</p>
+
+  <div class="alert info">Las API Keys tienen permisos de operador. No las expongas en aplicaciones cliente.</div>
+
+  <div class="endpoint-block">
+    <span class="method post">POST</span>
+    <span class="endpoint-path">/v1/auth/token</span>
+    <p>Intercambia una API Key por un token JWT de operador con expiracion de 24 horas.</p>
+    <table>
+      <tr><th>Parametro</th><th>Tipo</th><th>Requerido</th><th>Descripcion</th></tr>
+      <tr><td><code>apiKey</code></td><td>string</td><td class="required">Si</td><td>API Key del operador</td></tr>
+    </table>
+  </div>
+
+  <h3>JWT Cliente</h3>
+  <div class="endpoint-block">
+    <span class="method post">POST</span>
+    <span class="endpoint-path">/v1/customers/login</span>
+    <p>Inicia sesion de un cliente y devuelve un JWT con expiracion de 7 dias.</p>
+    <table>
+      <tr><th>Parametro</th><th>Tipo</th><th>Requerido</th><th>Descripcion</th></tr>
+      <tr><td><code>email</code></td><td>string</td><td class="required">Si</td><td>Correo electronico del cliente</td></tr>
+      <tr><td><code>password</code></td><td>string</td><td class="required">Si</td><td>Contrasena del cliente</td></tr>
+    </table>
+  </div>
+</div>
+<div class="section-right">
+  <h4>API Key directa</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>bash</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>curl -X GET https://api.blumbox.do/v1/shipments \
+  -H "X-Api-Key: blx_live_abc123..." \
+  -H "X-Tenant-Id: uuid-del-tenant"</code></pre>
+  </div>
+
+  <h4>Obtener JWT de operador</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>bash</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>curl -X POST https://api.blumbox.do/v1/auth/token \
+  -H "Content-Type: application/json" \
+  -d '{
+  "apiKey": "blx_live_abc123..."
+}'</code></pre>
+  </div>
+  <div class="code-block">
+    <div class="code-block-header"><span>json — Respuesta 200</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>{
+  "access_token": "eyJhbGciOiJIUzI1NiIs...",
+  "token_type": "Bearer",
+  "expires_in": 86400
+}</code></pre>
+  </div>
+
+  <h4>Login de cliente</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>bash</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>curl -X POST https://api.blumbox.do/v1/customers/login \
+  -H "Content-Type: application/json" \
+  -d '{
+  "email": "juan@email.com",
+  "password": "mi_contraseña"
+}'</code></pre>
+  </div>
+  <div class="code-block">
+    <div class="code-block-header"><span>json — Respuesta 200</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>{
+  "access_token": "eyJhbGciOiJIUzI1NiIs...",
+  "token_type": "Bearer",
+  "expires_in": 604800
+}</code></pre>
+  </div>
+</div>
+</div>
+
+<!-- ==================== CLIENTES Y CASILLEROS ==================== -->
+<div class="section" id="clientes">
+<div class="section-left">
+  <h2>Clientes y Casilleros</h2>
+  <p>Los clientes representan a los usuarios finales del servicio courier. Al registrarse, cada cliente recibe un <strong>numero de casillero</strong> unico (ej. <code>BLX-00042</code>) que utiliza como direccion de reenvio.</p>
+
+  <!-- POST /v1/customers/register -->
+  <div class="endpoint-block">
+    <span class="method post">POST</span>
+    <span class="endpoint-path">/v1/customers/register</span>
+    <p>Registra un nuevo cliente y genera su casillero automaticamente. Retorna el objeto del cliente creado.</p>
+    <table>
+      <tr><th>Parametro</th><th>Tipo</th><th>Requerido</th><th>Descripcion</th></tr>
+      <tr><td><code>email</code></td><td>string</td><td class="required">Si</td><td>Correo electronico</td></tr>
+      <tr><td><code>password</code></td><td>string</td><td class="required">Si</td><td>Contrasena (min. 8 caracteres)</td></tr>
+      <tr><td><code>firstName</code></td><td>string</td><td class="required">Si</td><td>Nombre</td></tr>
+      <tr><td><code>lastName</code></td><td>string</td><td class="required">Si</td><td>Apellido</td></tr>
+      <tr><td><code>phone</code></td><td>string</td><td class="required">Si</td><td>Telefono con codigo de pais</td></tr>
+      <tr><td><code>idType</code></td><td>string</td><td class="optional">No</td><td><code>CEDULA</code> | <code>PASAPORTE</code> | <code>RNC</code></td></tr>
+      <tr><td><code>idNumber</code></td><td>string</td><td class="optional">No</td><td>Numero de documento</td></tr>
+    </table>
+  </div>
+
+  <!-- POST /v1/customers/login -->
+  <div class="endpoint-block">
+    <span class="method post">POST</span>
+    <span class="endpoint-path">/v1/customers/login</span>
+    <p>Inicia sesion del cliente. Retorna un JWT valido por 7 dias.</p>
+  </div>
+
+  <!-- GET /v1/customers/me -->
+  <div class="endpoint-block">
+    <span class="method get">GET</span>
+    <span class="endpoint-path">/v1/customers/me</span>
+    <p>Obtiene el perfil del cliente autenticado. Requiere JWT de cliente.</p>
+  </div>
+
+  <!-- PATCH /v1/customers/me -->
+  <div class="endpoint-block">
+    <span class="method patch">PATCH</span>
+    <span class="endpoint-path">/v1/customers/me</span>
+    <p>Actualiza el perfil del cliente autenticado. Solo se envian los campos a modificar.</p>
+  </div>
+
+  <!-- GET /v1/customers -->
+  <div class="endpoint-block">
+    <span class="method get">GET</span>
+    <span class="endpoint-path">/v1/customers</span>
+    <p>Lista todos los clientes del tenant. Solo para operadores. Soporta paginacion y busqueda.</p>
+    <table>
+      <tr><th>Query</th><th>Tipo</th><th>Requerido</th><th>Descripcion</th></tr>
+      <tr><td><code>page</code></td><td>number</td><td class="optional">No</td><td>Pagina (default: 1)</td></tr>
+      <tr><td><code>limit</code></td><td>number</td><td class="optional">No</td><td>Resultados por pagina (default: 20)</td></tr>
+      <tr><td><code>search</code></td><td>string</td><td class="optional">No</td><td>Buscar por nombre, email o casillero</td></tr>
+    </table>
+  </div>
+
+  <!-- GET /v1/customers/:id -->
+  <div class="endpoint-block">
+    <span class="method get">GET</span>
+    <span class="endpoint-path">/v1/customers/:id</span>
+    <p>Obtiene el detalle de un cliente por su ID. Solo operadores.</p>
+  </div>
+
+  <!-- PATCH /v1/customers/:id -->
+  <div class="endpoint-block">
+    <span class="method patch">PATCH</span>
+    <span class="endpoint-path">/v1/customers/:id</span>
+    <p>Actualiza datos de un cliente. Solo operadores.</p>
+  </div>
+
+  <!-- DELETE /v1/customers/:id -->
+  <div class="endpoint-block">
+    <span class="method delete">DELETE</span>
+    <span class="endpoint-path">/v1/customers/:id</span>
+    <p>Desactiva un cliente (soft delete). El cliente no podra iniciar sesion. Solo operadores.</p>
+  </div>
+
+  <!-- GET /v1/customers/:id/shipments -->
+  <div class="endpoint-block">
+    <span class="method get">GET</span>
+    <span class="endpoint-path">/v1/customers/:id/shipments</span>
+    <p>Lista los envios asociados a un cliente. Retorna resultados paginados.</p>
+  </div>
+</div>
+<div class="section-right">
+  <h4>Registrar cliente</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>bash</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>curl -X POST https://api.blumbox.do/v1/customers/register \
+  -H "Content-Type: application/json" \
+  -H "X-Api-Key: blx_live_abc123..." \
+  -H "X-Tenant-Id: t1e2n3a4-n5t6-id77-uuid" \
+  -d '{
+  "email": "juan.perez@email.com",
+  "password": "MiContraseña123",
+  "firstName": "Juan",
+  "lastName": "Perez",
+  "phone": "+1-809-555-0123",
+  "idType": "CEDULA",
+  "idNumber": "001-1234567-8"
+}'</code></pre>
+  </div>
+  <div class="code-block">
+    <div class="code-block-header"><span>json — Respuesta 201</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>{
+  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "tenantId": "t1e2n3a4-n5t6-id77-uuid",
+  "casillero": "BLX-00042",
+  "email": "juan.perez@email.com",
+  "firstName": "Juan",
+  "lastName": "Perez",
+  "phone": "+1-809-555-0123",
+  "idType": "CEDULA",
+  "idNumber": "001-1234567-8",
+  "isActive": true,
+  "createdAt": "2026-03-24T14:30:00.000Z"
+}</code></pre>
+  </div>
+
+  <h4>Obtener mi perfil</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>bash</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>curl -X GET https://api.blumbox.do/v1/customers/me \
+  -H "Authorization: Bearer eyJhbGci..."</code></pre>
+  </div>
+
+  <h4>Listar clientes (operador)</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>bash</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>curl -X GET "https://api.blumbox.do/v1/customers?page=1&amp;limit=20&amp;search=juan" \
+  -H "Authorization: Bearer eyJhbGci..."</code></pre>
+  </div>
+
+  <h4>Desactivar cliente</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>bash</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>curl -X DELETE https://api.blumbox.do/v1/customers/a1b2c3d4-... \
+  -H "Authorization: Bearer eyJhbGci..."</code></pre>
+  </div>
+  <div class="code-block">
+    <div class="code-block-header"><span>json — Respuesta 200</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>{
+  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "isActive": false,
+  "deactivatedAt": "2026-03-24T16:00:00.000Z"
+}</code></pre>
+  </div>
+</div>
+</div>
+
+<!-- ==================== ENVIOS ==================== -->
+<div class="section" id="envios">
+<div class="section-left">
+  <h2>Envios (Shipments)</h2>
+  <p>Un envio representa un paquete en transito dentro del sistema. Cada envio tiene un <code>trackingNumber</code>, una fase actual (<code>currentPhase</code>) y puede contener metadata personalizada.</p>
+
+  <!-- POST /v1/shipments -->
+  <div class="endpoint-block">
+    <span class="method post">POST</span>
+    <span class="endpoint-path">/v1/shipments</span>
+    <p>Crea un nuevo envio en el sistema. Retorna el envio creado con fase inicial <code>CREATED</code>.</p>
+    <table>
+      <tr><th>Parametro</th><th>Tipo</th><th>Requerido</th><th>Descripcion</th></tr>
+      <tr><td><code>trackingNumber</code></td><td>string</td><td class="required">Si</td><td>Numero de rastreo del carrier</td></tr>
+      <tr><td><code>customerId</code></td><td>string</td><td class="required">Si</td><td>UUID del cliente destino</td></tr>
+      <tr><td><code>reference</code></td><td>string</td><td class="optional">No</td><td>Referencia interna u orden</td></tr>
+      <tr><td><code>metadata</code></td><td>object</td><td class="optional">No</td><td>Datos adicionales (tienda, peso, etc.)</td></tr>
+    </table>
+  </div>
+
+  <!-- GET /v1/shipments -->
+  <div class="endpoint-block">
+    <span class="method get">GET</span>
+    <span class="endpoint-path">/v1/shipments</span>
+    <p>Lista envios con paginacion. Los operadores ven todos los envios del tenant; los clientes solo los suyos.</p>
+    <table>
+      <tr><th>Query</th><th>Tipo</th><th>Requerido</th><th>Descripcion</th></tr>
+      <tr><td><code>page</code></td><td>number</td><td class="optional">No</td><td>Pagina (default: 1)</td></tr>
+      <tr><td><code>limit</code></td><td>number</td><td class="optional">No</td><td>Resultados por pagina (default: 20)</td></tr>
+      <tr><td><code>phase</code></td><td>string</td><td class="optional">No</td><td>Filtrar por fase actual</td></tr>
+      <tr><td><code>customerId</code></td><td>string</td><td class="optional">No</td><td>Filtrar por cliente</td></tr>
+    </table>
+  </div>
+
+  <!-- GET /v1/shipments/:id -->
+  <div class="endpoint-block">
+    <span class="method get">GET</span>
+    <span class="endpoint-path">/v1/shipments/:id</span>
+    <p>Obtiene el detalle completo de un envio, incluyendo sus eventos de tracking.</p>
+  </div>
+
+  <!-- GET /v1/trackings/:trackingNumber -->
+  <div class="endpoint-block">
+    <span class="method get">GET</span>
+    <span class="endpoint-path">/v1/trackings/:trackingNumber</span>
+    <p>Busca un envio por su numero de rastreo. Util para clientes que solo conocen el tracking del carrier.</p>
+  </div>
+</div>
+<div class="section-right">
+  <h4>Crear envio</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>bash</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>curl -X POST https://api.blumbox.do/v1/shipments \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer eyJhbGci..." \
+  -d '{
+  "trackingNumber": "1Z999AA10123456784",
+  "reference": "ORDEN-2026-0042",
+  "customerId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "metadata": {
+    "tienda": "Amazon",
+    "peso_estimado": "2.5 lbs"
+  }
+}'</code></pre>
+  </div>
+  <div class="code-block">
+    <div class="code-block-header"><span>json — Respuesta 201</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>{
+  "id": "s1h2i3p4-m5e6-n7t8-uuid-000000000001",
+  "tenantId": "t1e2n3a4-n5t6-id77-uuid",
+  "trackingNumber": "1Z999AA10123456784",
+  "reference": "ORDEN-2026-0042",
+  "customerId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "currentPhase": "CREATED",
+  "metadata": {
+    "tienda": "Amazon",
+    "peso_estimado": "2.5 lbs"
+  },
+  "createdAt": "2026-03-24T14:35:00.000Z",
+  "updatedAt": "2026-03-24T14:35:00.000Z"
+}</code></pre>
+  </div>
+
+  <h4>Listar envios</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>bash</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>curl -X GET "https://api.blumbox.do/v1/shipments?phase=IN_TRANSIT&amp;page=1" \
+  -H "Authorization: Bearer eyJhbGci..."</code></pre>
+  </div>
+
+  <h4>Buscar por tracking</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>bash</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>curl -X GET https://api.blumbox.do/v1/trackings/1Z999AA10123456784 \
+  -H "Authorization: Bearer eyJhbGci..."</code></pre>
+  </div>
+</div>
+</div>
+
+<!-- ==================== TRACKING EVENTS ==================== -->
+<div class="section" id="tracking">
+<div class="section-left">
+  <h2>Eventos de Tracking</h2>
+  <p>Los eventos de tracking registran cada cambio de estado de un envio. Al agregar un evento, la fase del envio se actualiza automaticamente segun la <strong>maquina de estados</strong>.</p>
+
+  <h3>Maquina de estados</h3>
+  <div class="state-flow">
+    <span class="state">CREATED</span><span class="arrow">&rarr;</span>
+    <span class="state">RECEIVED</span><span class="arrow">&rarr;</span>
+    <span class="state">IN_TRANSIT</span><span class="arrow">&rarr;</span>
+    <span class="state">IN_CUSTOMS</span><span class="arrow">&rarr;</span>
+    <span class="state">CLEARED</span><span class="arrow">&rarr;</span>
+    <span class="state">OUT_FOR_DELIVERY</span><span class="arrow">&rarr;</span>
+    <span class="state">DELIVERED</span>
+  </div>
+  <div class="state-flow" style="margin-top:8px">
+    <span class="state exception">EXCEPTION</span>
+    <span class="state exception">RETURNED</span>
+    <span style="font-size:12px;color:var(--text-light);margin-left:8px">&larr; Pueden ocurrir desde cualquier fase</span>
+  </div>
+
+  <div class="alert info">Los eventos son <strong>idempotentes</strong>: si se envia un evento duplicado (mismo tipo + shipmentId + timestamp), se retorna el evento existente con <code>"idempotent": true</code>.</div>
+
+  <!-- POST /v1/shipments/:id/events -->
+  <div class="endpoint-block">
+    <span class="method post">POST</span>
+    <span class="endpoint-path">/v1/shipments/:id/events</span>
+    <p>Registra un nuevo evento en el envio. Actualiza automaticamente la fase del envio. Retorna el envio actualizado y el evento creado.</p>
+    <table>
+      <tr><th>Parametro</th><th>Tipo</th><th>Requerido</th><th>Descripcion</th></tr>
+      <tr><td><code>type</code></td><td>string</td><td class="required">Si</td><td>Fase destino: <code>RECEIVED</code>, <code>IN_TRANSIT</code>, etc.</td></tr>
+      <tr><td><code>source</code></td><td>string</td><td class="required">Si</td><td><code>SCAN</code> | <code>MANUAL</code> | <code>CARRIER_API</code> | <code>WEBHOOK</code></td></tr>
+      <tr><td><code>rawStatus</code></td><td>string</td><td class="optional">No</td><td>Texto descriptivo del evento</td></tr>
+      <tr><td><code>location</code></td><td>object</td><td class="optional">No</td><td>Ubicacion donde ocurrio el evento</td></tr>
+      <tr><td><code>occurredAt</code></td><td>string</td><td class="optional">No</td><td>Fecha del evento (default: ahora)</td></tr>
+    </table>
+  </div>
+
+  <!-- GET /v1/shipments/:id/events -->
+  <div class="endpoint-block">
+    <span class="method get">GET</span>
+    <span class="endpoint-path">/v1/shipments/:id/events</span>
+    <p>Obtiene la timeline completa de eventos del envio, ordenados cronologicamente.</p>
+  </div>
+</div>
+<div class="section-right">
+  <h4>Agregar evento de tracking</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>bash</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>curl -X POST https://api.blumbox.do/v1/shipments/s1h2i3p4-.../events \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer eyJhbGci..." \
+  -d '{
+  "type": "RECEIVED",
+  "source": "SCAN",
+  "rawStatus": "Paquete recibido en bodega Miami",
+  "location": {
+    "ciudad": "Miami",
+    "pais": "US",
+    "bodega": "MIA-WH1"
+  }
+}'</code></pre>
+  </div>
+  <div class="code-block">
+    <div class="code-block-header"><span>json — Respuesta 201</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>{
+  "shipment": {
+    "id": "s1h2i3p4-m5e6-n7t8-uuid-000000000001",
+    "currentPhase": "RECEIVED",
+    "trackingNumber": "1Z999AA10123456784",
+    "updatedAt": "2026-03-24T15:00:00.000Z"
+  },
+  "event": {
+    "id": "e1v2t3n4-uid0-0000-0000-000000000001",
+    "type": "RECEIVED",
+    "source": "SCAN",
+    "rawStatus": "Paquete recibido en bodega Miami",
+    "occurredAt": "2026-03-24T15:00:00.000Z",
+    "location": {
+      "ciudad": "Miami",
+      "pais": "US",
+      "bodega": "MIA-WH1"
+    }
+  },
+  "idempotent": false
+}</code></pre>
+  </div>
+
+  <h4>Timeline de eventos</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>bash</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>curl -X GET https://api.blumbox.do/v1/shipments/s1h2i3p4-.../events \
+  -H "Authorization: Bearer eyJhbGci..."</code></pre>
+  </div>
+  <div class="code-block">
+    <div class="code-block-header"><span>json — Respuesta 200</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>{
+  "data": [
+    {
+      "id": "e1v2t3n4-...",
+      "type": "CREATED",
+      "source": "SYSTEM",
+      "occurredAt": "2026-03-24T14:35:00.000Z"
+    },
+    {
+      "id": "e1v2t3n4-...",
+      "type": "RECEIVED",
+      "source": "SCAN",
+      "rawStatus": "Paquete recibido en bodega Miami",
+      "occurredAt": "2026-03-24T15:00:00.000Z",
+      "location": {
+        "ciudad": "Miami",
+        "pais": "US",
+        "bodega": "MIA-WH1"
+      }
+    }
+  ]
+}</code></pre>
+  </div>
+</div>
+</div>
+
+<!-- ==================== PRE-ALERTAS ==================== -->
+<div class="section" id="pre-alertas">
+<div class="section-left">
+  <h2>Pre-Alertas</h2>
+  <p>Las pre-alertas permiten a los clientes notificar al courier sobre paquetes que estan esperando. Cuando el paquete llega, el sistema puede vincular automaticamente la pre-alerta con el envio usando el numero de tracking.</p>
+
+  <!-- POST /v1/customers/me/pre-alerts -->
+  <div class="endpoint-block">
+    <span class="method post">POST</span>
+    <span class="endpoint-path">/v1/customers/me/pre-alerts</span>
+    <p>Crea una pre-alerta para el cliente autenticado. Retorna la pre-alerta con estado <code>PENDING</code>.</p>
+    <table>
+      <tr><th>Parametro</th><th>Tipo</th><th>Requerido</th><th>Descripcion</th></tr>
+      <tr><td><code>trackingNumber</code></td><td>string</td><td class="required">Si</td><td>Numero de rastreo del carrier</td></tr>
+      <tr><td><code>carrier</code></td><td>string</td><td class="optional">No</td><td>Nombre del carrier (UPS, FedEx, USPS, etc.)</td></tr>
+      <tr><td><code>store</code></td><td>string</td><td class="optional">No</td><td>Tienda de origen</td></tr>
+      <tr><td><code>description</code></td><td>string</td><td class="optional">No</td><td>Descripcion del contenido</td></tr>
+      <tr><td><code>estimatedValue</code></td><td>number</td><td class="optional">No</td><td>Valor declarado</td></tr>
+      <tr><td><code>currency</code></td><td>string</td><td class="optional">No</td><td>Moneda (default: <code>USD</code>)</td></tr>
+      <tr><td><code>category</code></td><td>string</td><td class="optional">No</td><td>Categoria del producto</td></tr>
+    </table>
+  </div>
+
+  <!-- GET /v1/pre-alerts -->
+  <div class="endpoint-block">
+    <span class="method get">GET</span>
+    <span class="endpoint-path">/v1/pre-alerts</span>
+    <p>Lista todas las pre-alertas del tenant. Solo para operadores. Soporta paginacion.</p>
+  </div>
+
+  <!-- GET /v1/pre-alerts/unmatched -->
+  <div class="endpoint-block">
+    <span class="method get">GET</span>
+    <span class="endpoint-path">/v1/pre-alerts/unmatched</span>
+    <p>Lista las pre-alertas que aun no se han vinculado con ningun envio. Util para operadores al procesar paquetes entrantes.</p>
+  </div>
+
+  <!-- POST /v1/pre-alerts/:id/link -->
+  <div class="endpoint-block">
+    <span class="method post">POST</span>
+    <span class="endpoint-path">/v1/pre-alerts/:id/link</span>
+    <p>Vincula manualmente una pre-alerta con un envio existente.</p>
+    <table>
+      <tr><th>Parametro</th><th>Tipo</th><th>Requerido</th><th>Descripcion</th></tr>
+      <tr><td><code>shipmentId</code></td><td>string</td><td class="required">Si</td><td>UUID del envio a vincular</td></tr>
+    </table>
+  </div>
+</div>
+<div class="section-right">
+  <h4>Crear pre-alerta (cliente)</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>bash</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>curl -X POST https://api.blumbox.do/v1/customers/me/pre-alerts \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer eyJhbGci..." \
+  -d '{
+  "trackingNumber": "1Z999AA10123456784",
+  "carrier": "UPS",
+  "store": "Amazon",
+  "description": "Laptop Dell XPS 15",
+  "estimatedValue": 1299.99,
+  "currency": "USD",
+  "category": "Electronica"
+}'</code></pre>
+  </div>
+  <div class="code-block">
+    <div class="code-block-header"><span>json — Respuesta 201</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>{
+  "id": "p1a2l3r4-t5a6-uid0-0000-000000000001",
+  "customerId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "trackingNumber": "1Z999AA10123456784",
+  "carrier": "UPS",
+  "store": "Amazon",
+  "description": "Laptop Dell XPS 15",
+  "estimatedValue": 1299.99,
+  "currency": "USD",
+  "category": "Electronica",
+  "status": "PENDING",
+  "shipmentId": null,
+  "createdAt": "2026-03-24T12:00:00.000Z"
+}</code></pre>
+  </div>
+
+  <h4>Vincular con envio</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>bash</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>curl -X POST https://api.blumbox.do/v1/pre-alerts/p1a2l3r4-.../link \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer eyJhbGci..." \
+  -d '{
+  "shipmentId": "s1h2i3p4-m5e6-n7t8-uuid-000000000001"
+}'</code></pre>
+  </div>
+  <div class="code-block">
+    <div class="code-block-header"><span>json — Respuesta 200</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>{
+  "id": "p1a2l3r4-t5a6-uid0-0000-000000000001",
+  "status": "MATCHED",
+  "shipmentId": "s1h2i3p4-m5e6-n7t8-uuid-000000000001",
+  "matchedAt": "2026-03-24T16:30:00.000Z"
+}</code></pre>
+  </div>
+</div>
+</div>
+
+<!-- ==================== RECEPCIONES ==================== -->
+<div class="section" id="recepciones">
+<div class="section-left">
+  <h2>Recepciones</h2>
+  <p>Las recepciones documentan la llegada fisica de un paquete a una sucursal. Incluyen medidas, peso y cargos asociados. El <strong>peso volumetrico</strong> se calcula automaticamente usando la formula: <code>(L x W x H) / 5000</code>.</p>
+
+  <!-- POST /v1/receptions -->
+  <div class="endpoint-block">
+    <span class="method post">POST</span>
+    <span class="endpoint-path">/v1/receptions</span>
+    <p>Registra la recepcion de un paquete en una sucursal. Retorna la recepcion con peso volumetrico calculado.</p>
+    <table>
+      <tr><th>Parametro</th><th>Tipo</th><th>Requerido</th><th>Descripcion</th></tr>
+      <tr><td><code>shipmentId</code></td><td>string</td><td class="required">Si</td><td>UUID del envio</td></tr>
+      <tr><td><code>branchId</code></td><td>string</td><td class="required">Si</td><td>UUID de la sucursal</td></tr>
+      <tr><td><code>weightLbs</code></td><td>number</td><td class="required">Si</td><td>Peso real en libras</td></tr>
+      <tr><td><code>lengthCm</code></td><td>number</td><td class="optional">No</td><td>Largo en centimetros</td></tr>
+      <tr><td><code>widthCm</code></td><td>number</td><td class="optional">No</td><td>Ancho en centimetros</td></tr>
+      <tr><td><code>heightCm</code></td><td>number</td><td class="optional">No</td><td>Alto en centimetros</td></tr>
+      <tr><td><code>notes</code></td><td>string</td><td class="optional">No</td><td>Observaciones</td></tr>
+    </table>
+  </div>
+
+  <!-- POST /v1/receptions/:id/charges -->
+  <div class="endpoint-block">
+    <span class="method post">POST</span>
+    <span class="endpoint-path">/v1/receptions/:id/charges</span>
+    <p>Agrega un cargo a la recepcion (flete, seguro, manejo, impuestos, etc.).</p>
+    <table>
+      <tr><th>Parametro</th><th>Tipo</th><th>Requerido</th><th>Descripcion</th></tr>
+      <tr><td><code>concept</code></td><td>string</td><td class="required">Si</td><td>Concepto del cargo</td></tr>
+      <tr><td><code>amount</code></td><td>number</td><td class="required">Si</td><td>Monto en USD</td></tr>
+      <tr><td><code>type</code></td><td>string</td><td class="required">Si</td><td><code>FREIGHT</code> | <code>HANDLING</code> | <code>INSURANCE</code> | <code>TAX</code> | <code>OTHER</code></td></tr>
+    </table>
+  </div>
+
+  <!-- PATCH /v1/receptions/:id/status -->
+  <div class="endpoint-block">
+    <span class="method patch">PATCH</span>
+    <span class="endpoint-path">/v1/receptions/:id/status</span>
+    <p>Cambia el estado de la recepcion.</p>
+    <table>
+      <tr><th>Parametro</th><th>Tipo</th><th>Requerido</th><th>Descripcion</th></tr>
+      <tr><td><code>status</code></td><td>string</td><td class="required">Si</td><td><code>PENDING</code> | <code>READY</code> | <code>DELIVERED</code> | <code>RETURNED</code></td></tr>
+    </table>
+  </div>
+</div>
+<div class="section-right">
+  <h4>Registrar recepcion</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>bash</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>curl -X POST https://api.blumbox.do/v1/receptions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer eyJhbGci..." \
+  -d '{
+  "shipmentId": "s1h2i3p4-m5e6-n7t8-uuid-000000000001",
+  "branchId": "b1r2a3n4-c5h6-uid0-0000-000000000001",
+  "weightLbs": 2.5,
+  "lengthCm": 30,
+  "widthCm": 20,
+  "heightCm": 15,
+  "notes": "Caja en buen estado"
+}'</code></pre>
+  </div>
+  <div class="code-block">
+    <div class="code-block-header"><span>json — Respuesta 201</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>{
+  "id": "r1c2p3t4-uid0-0000-0000-000000000001",
+  "shipmentId": "s1h2i3p4-m5e6-n7t8-uuid-000000000001",
+  "branchId": "b1r2a3n4-c5h6-uid0-0000-000000000001",
+  "weightLbs": 2.5,
+  "lengthCm": 30,
+  "widthCm": 20,
+  "heightCm": 15,
+  "volumetricWeight": 1.8,
+  "billableWeight": 2.5,
+  "notes": "Caja en buen estado",
+  "status": "PENDING",
+  "charges": [],
+  "createdAt": "2026-03-24T16:00:00.000Z"
+}</code></pre>
+  </div>
+
+  <h4>Agregar cargo</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>bash</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>curl -X POST https://api.blumbox.do/v1/receptions/r1c2p3t4-.../charges \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer eyJhbGci..." \
+  -d '{
+  "concept": "Flete aereo MIA-SDQ",
+  "amount": 8.75,
+  "type": "FREIGHT"
+}'</code></pre>
+  </div>
+  <div class="code-block">
+    <div class="code-block-header"><span>json — Respuesta 201</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>{
+  "id": "ch1r2g3-uid0-0000-0000-000000000001",
+  "receptionId": "r1c2p3t4-uid0-0000-0000-000000000001",
+  "concept": "Flete aereo MIA-SDQ",
+  "amount": 8.75,
+  "type": "FREIGHT",
+  "createdAt": "2026-03-24T16:05:00.000Z"
+}</code></pre>
+  </div>
+</div>
+</div>
+
+<!-- ==================== SUCURSALES ==================== -->
+<div class="section" id="sucursales">
+<div class="section-left">
+  <h2>Sucursales</h2>
+  <p>Las sucursales representan bodegas, oficinas y puntos de entrega del courier. Pueden ser de tipo <code>WAREHOUSE</code> (bodega), <code>OFFICE</code> (oficina) o <code>PICKUP_POINT</code> (punto de recogida).</p>
+
+  <!-- POST /v1/branches -->
+  <div class="endpoint-block">
+    <span class="method post">POST</span>
+    <span class="endpoint-path">/v1/branches</span>
+    <p>Crea una nueva sucursal. Solo operadores. Retorna la sucursal creada.</p>
+    <table>
+      <tr><th>Parametro</th><th>Tipo</th><th>Requerido</th><th>Descripcion</th></tr>
+      <tr><td><code>name</code></td><td>string</td><td class="required">Si</td><td>Nombre de la sucursal</td></tr>
+      <tr><td><code>code</code></td><td>string</td><td class="required">Si</td><td>Codigo unico (ej. MIA-WH1)</td></tr>
+      <tr><td><code>type</code></td><td>string</td><td class="required">Si</td><td><code>WAREHOUSE</code> | <code>OFFICE</code> | <code>PICKUP_POINT</code></td></tr>
+      <tr><td><code>address</code></td><td>object</td><td class="required">Si</td><td>Direccion completa</td></tr>
+      <tr><td><code>coordinates</code></td><td>object</td><td class="optional">No</td><td><code>{ lat, lng }</code></td></tr>
+      <tr><td><code>phone</code></td><td>string</td><td class="optional">No</td><td>Telefono de contacto</td></tr>
+    </table>
+  </div>
+
+  <!-- GET /v1/branches/public -->
+  <div class="endpoint-block">
+    <span class="method get">GET</span>
+    <span class="endpoint-path">/v1/branches/public</span>
+    <p>Lista las sucursales publicas del tenant. No requiere autenticacion. Ideal para mostrar en apps y sitios web.</p>
+  </div>
+</div>
+<div class="section-right">
+  <h4>Crear sucursal</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>bash</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>curl -X POST https://api.blumbox.do/v1/branches \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer eyJhbGci..." \
+  -d '{
+  "name": "Bodega Miami",
+  "code": "MIA-WH1",
+  "type": "WAREHOUSE",
+  "address": {
+    "linea1": "7895 NW 54th St",
+    "ciudad": "Doral",
+    "estado": "FL",
+    "zip": "33166",
+    "pais": "US"
+  },
+  "coordinates": { "lat": 25.8126, "lng": -80.3357 },
+  "phone": "+1-305-555-0100"
+}'</code></pre>
+  </div>
+  <div class="code-block">
+    <div class="code-block-header"><span>json — Respuesta 201</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>{
+  "id": "b1r2a3n4-c5h6-uid0-0000-000000000001",
+  "tenantId": "t1e2n3a4-n5t6-id77-uuid",
+  "name": "Bodega Miami",
+  "code": "MIA-WH1",
+  "type": "WAREHOUSE",
+  "address": {
+    "linea1": "7895 NW 54th St",
+    "ciudad": "Doral",
+    "estado": "FL",
+    "zip": "33166",
+    "pais": "US"
+  },
+  "coordinates": { "lat": 25.8126, "lng": -80.3357 },
+  "phone": "+1-305-555-0100",
+  "isActive": true,
+  "createdAt": "2026-03-24T10:00:00.000Z"
+}</code></pre>
+  </div>
+
+  <h4>Listar sucursales publicas</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>bash</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>curl -X GET https://api.blumbox.do/v1/branches/public \
+  -H "X-Tenant-Id: t1e2n3a4-n5t6-id77-uuid"</code></pre>
+  </div>
+</div>
+</div>
+
+<!-- ==================== CALCULADORA ==================== -->
+<div class="section" id="calculadora">
+<div class="section-left">
+  <h2>Calculadora de Tarifas</h2>
+  <p>Calcula el costo de envio basado en peso real, peso volumetrico y las tarifas configuradas por el operador. El sistema utiliza el <strong>mayor</strong> entre peso real y volumetrico como peso facturable.</p>
+
+  <!-- POST /v1/calculator/estimate -->
+  <div class="endpoint-block">
+    <span class="method post">POST</span>
+    <span class="endpoint-path">/v1/calculator/estimate</span>
+    <p>Calcula una estimacion de tarifa. No requiere autenticacion. Retorna el desglose completo del calculo.</p>
+    <table>
+      <tr><th>Parametro</th><th>Tipo</th><th>Requerido</th><th>Descripcion</th></tr>
+      <tr><td><code>weightLbs</code></td><td>number</td><td class="required">Si</td><td>Peso real en libras</td></tr>
+      <tr><td><code>lengthCm</code></td><td>number</td><td class="optional">No</td><td>Largo en cm</td></tr>
+      <tr><td><code>widthCm</code></td><td>number</td><td class="optional">No</td><td>Ancho en cm</td></tr>
+      <tr><td><code>heightCm</code></td><td>number</td><td class="optional">No</td><td>Alto en cm</td></tr>
+      <tr><td><code>originZone</code></td><td>string</td><td class="required">Si</td><td>Zona de origen (ej. <code>MIA</code>)</td></tr>
+      <tr><td><code>destZone</code></td><td>string</td><td class="required">Si</td><td>Zona de destino (ej. <code>SDQ</code>, <code>STI</code>)</td></tr>
+    </table>
+  </div>
+</div>
+<div class="section-right">
+  <h4>Calcular tarifa</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>bash</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>curl -X POST https://api.blumbox.do/v1/calculator/estimate \
+  -H "Content-Type: application/json" \
+  -H "X-Tenant-Id: t1e2n3a4-n5t6-id77-uuid" \
+  -d '{
+  "weightLbs": 5.5,
+  "lengthCm": 40,
+  "widthCm": 30,
+  "heightCm": 20,
+  "originZone": "MIA",
+  "destZone": "SDQ"
+}'</code></pre>
+  </div>
+  <div class="code-block">
+    <div class="code-block-header"><span>json — Respuesta 200</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>{
+  "actualWeight": 5.5,
+  "volumetricWeight": 4.63,
+  "billableWeight": 5.5,
+  "pricePerLb": 3.50,
+  "flatFee": 2.00,
+  "total": 21.25,
+  "currency": "USD"
+}</code></pre>
+  </div>
+</div>
+</div>
+
+<!-- ==================== RATE TABLES ==================== -->
+<div class="section" id="rate-tables">
+<div class="section-left">
+  <h2>Tablas de Tarifas</h2>
+  <p>Los operadores pueden configurar tablas de tarifas personalizadas por zona de origen/destino. Cada tabla contiene <strong>tiers</strong> (rangos de peso) con sus respectivos precios por libra.</p>
+
+  <div class="alert warn">Solo operadores con permisos de administrador pueden gestionar tablas de tarifas.</div>
+
+  <!-- POST /v1/rate-tables -->
+  <div class="endpoint-block">
+    <span class="method post">POST</span>
+    <span class="endpoint-path">/v1/rate-tables</span>
+    <p>Crea una nueva tabla de tarifas.</p>
+    <table>
+      <tr><th>Parametro</th><th>Tipo</th><th>Requerido</th><th>Descripcion</th></tr>
+      <tr><td><code>name</code></td><td>string</td><td class="required">Si</td><td>Nombre de la tabla</td></tr>
+      <tr><td><code>originZone</code></td><td>string</td><td class="required">Si</td><td>Zona de origen</td></tr>
+      <tr><td><code>destZone</code></td><td>string</td><td class="required">Si</td><td>Zona de destino</td></tr>
+      <tr><td><code>flatFee</code></td><td>number</td><td class="optional">No</td><td>Cargo fijo por envio (default: 0)</td></tr>
+    </table>
+  </div>
+
+  <!-- GET /v1/rate-tables -->
+  <div class="endpoint-block">
+    <span class="method get">GET</span>
+    <span class="endpoint-path">/v1/rate-tables</span>
+    <p>Lista todas las tablas de tarifas del tenant.</p>
+  </div>
+
+  <!-- POST /v1/rate-tables/:id/tiers -->
+  <div class="endpoint-block">
+    <span class="method post">POST</span>
+    <span class="endpoint-path">/v1/rate-tables/:id/tiers</span>
+    <p>Agrega un rango de peso a la tabla de tarifas.</p>
+    <table>
+      <tr><th>Parametro</th><th>Tipo</th><th>Requerido</th><th>Descripcion</th></tr>
+      <tr><td><code>minWeight</code></td><td>number</td><td class="required">Si</td><td>Peso minimo del rango (lbs)</td></tr>
+      <tr><td><code>maxWeight</code></td><td>number</td><td class="required">Si</td><td>Peso maximo del rango (lbs)</td></tr>
+      <tr><td><code>pricePerLb</code></td><td>number</td><td class="required">Si</td><td>Precio por libra en USD</td></tr>
+    </table>
+  </div>
+
+  <div class="endpoint-block">
+    <span class="method patch">PATCH</span>
+    <span class="endpoint-path">/v1/rate-tables/:id</span>
+    <p>Actualiza una tabla de tarifas existente.</p>
+  </div>
+
+  <div class="endpoint-block">
+    <span class="method delete">DELETE</span>
+    <span class="endpoint-path">/v1/rate-tables/:id</span>
+    <p>Elimina una tabla de tarifas y todos sus tiers.</p>
+  </div>
+</div>
+<div class="section-right">
+  <h4>Crear tabla de tarifas</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>bash</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>curl -X POST https://api.blumbox.do/v1/rate-tables \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer eyJhbGci..." \
+  -d '{
+  "name": "Miami a Santo Domingo - Estandar",
+  "originZone": "MIA",
+  "destZone": "SDQ",
+  "flatFee": 2.00
+}'</code></pre>
+  </div>
+
+  <h4>Agregar tier de peso</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>bash</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>curl -X POST https://api.blumbox.do/v1/rate-tables/rt1-.../tiers \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer eyJhbGci..." \
+  -d '{
+  "minWeight": 0,
+  "maxWeight": 10,
+  "pricePerLb": 3.50
+}'</code></pre>
+  </div>
+  <div class="code-block">
+    <div class="code-block-header"><span>json — Respuesta 201</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>{
+  "id": "tier-001-uuid",
+  "rateTableId": "rt1-uuid-...",
+  "minWeight": 0,
+  "maxWeight": 10,
+  "pricePerLb": 3.50,
+  "createdAt": "2026-03-24T09:00:00.000Z"
+}</code></pre>
+  </div>
+</div>
+</div>
+
+<!-- ==================== NOTIFICACIONES ==================== -->
+<div class="section" id="notificaciones">
+<div class="section-left">
+  <h2>Notificaciones</h2>
+  <p>El sistema de notificaciones permite enviar alertas a los clientes via push, email o SMS cuando ocurren eventos en sus envios. Los operadores gestionan <strong>plantillas</strong> y consultan <strong>logs</strong> de envio.</p>
+
+  <!-- Templates -->
+  <div class="endpoint-block">
+    <span class="method post">POST</span>
+    <span class="endpoint-path">/v1/notifications/templates</span>
+    <p>Crea una plantilla de notificacion.</p>
+    <table>
+      <tr><th>Parametro</th><th>Tipo</th><th>Requerido</th><th>Descripcion</th></tr>
+      <tr><td><code>event</code></td><td>string</td><td class="required">Si</td><td>Evento que dispara la notificacion</td></tr>
+      <tr><td><code>channel</code></td><td>string</td><td class="required">Si</td><td><code>PUSH</code> | <code>EMAIL</code> | <code>SMS</code></td></tr>
+      <tr><td><code>subject</code></td><td>string</td><td class="optional">No</td><td>Asunto (para email)</td></tr>
+      <tr><td><code>body</code></td><td>string</td><td class="required">Si</td><td>Cuerpo con variables: <code>{{nombre}}</code>, <code>{{tracking}}</code>, etc.</td></tr>
+    </table>
+  </div>
+
+  <div class="endpoint-block">
+    <span class="method get">GET</span>
+    <span class="endpoint-path">/v1/notifications/templates</span>
+    <p>Lista todas las plantillas del tenant.</p>
+  </div>
+
+  <div class="endpoint-block">
+    <span class="method get">GET</span>
+    <span class="endpoint-path">/v1/notifications/logs</span>
+    <p>Consulta el historial de notificaciones enviadas. Soporta filtros por <code>customerId</code>, <code>channel</code> y <code>status</code>.</p>
+  </div>
+
+  <div class="endpoint-block">
+    <span class="method get">GET</span>
+    <span class="endpoint-path">/v1/customers/me/notification-preferences</span>
+    <p>Obtiene las preferencias de notificacion del cliente autenticado.</p>
+  </div>
+
+  <div class="endpoint-block">
+    <span class="method patch">PATCH</span>
+    <span class="endpoint-path">/v1/customers/me/notification-preferences</span>
+    <p>Actualiza las preferencias de notificacion del cliente.</p>
+    <table>
+      <tr><th>Parametro</th><th>Tipo</th><th>Requerido</th><th>Descripcion</th></tr>
+      <tr><td><code>push</code></td><td>boolean</td><td class="optional">No</td><td>Recibir notificaciones push</td></tr>
+      <tr><td><code>email</code></td><td>boolean</td><td class="optional">No</td><td>Recibir emails</td></tr>
+      <tr><td><code>sms</code></td><td>boolean</td><td class="optional">No</td><td>Recibir SMS</td></tr>
+    </table>
+  </div>
+</div>
+<div class="section-right">
+  <h4>Crear plantilla</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>bash</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>curl -X POST https://api.blumbox.do/v1/notifications/templates \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer eyJhbGci..." \
+  -d '{
+  "event": "shipment.delivered",
+  "channel": "PUSH",
+  "body": "Hola {{nombre}}, tu paquete {{tracking}} esta listo para recoger en {{sucursal}}."
+}'</code></pre>
+  </div>
+  <div class="code-block">
+    <div class="code-block-header"><span>json — Respuesta 201</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>{
+  "id": "tmpl-001-uuid",
+  "event": "shipment.delivered",
+  "channel": "PUSH",
+  "body": "Hola {{nombre}}, tu paquete {{tracking}} esta listo para recoger en {{sucursal}}.",
+  "isActive": true,
+  "createdAt": "2026-03-24T08:00:00.000Z"
+}</code></pre>
+  </div>
+
+  <h4>Preferencias del cliente</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>bash</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>curl -X PATCH https://api.blumbox.do/v1/customers/me/notification-preferences \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer eyJhbGci..." \
+  -d '{
+  "push": true,
+  "email": true,
+  "sms": false
+}'</code></pre>
+  </div>
+</div>
+</div>
+
+<!-- ==================== WEBHOOKS ==================== -->
+<div class="section" id="webhooks">
+<div class="section-left">
+  <h2>Webhooks</h2>
+  <p>Los webhooks permiten recibir notificaciones en tiempo real sobre eventos del sistema en una URL de tu servidor. Cada solicitud incluye una <strong>firma HMAC-SHA256</strong> para verificar su autenticidad.</p>
+
+  <h3>Eventos disponibles</h3>
+  <table>
+    <tr><th>Evento</th><th>Descripcion</th></tr>
+    <tr><td><code>shipment.created</code></td><td>Nuevo envio creado</td></tr>
+    <tr><td><code>shipment.received</code></td><td>Paquete recibido en bodega</td></tr>
+    <tr><td><code>shipment.in_transit</code></td><td>Paquete en transito</td></tr>
+    <tr><td><code>shipment.in_customs</code></td><td>Paquete en aduanas</td></tr>
+    <tr><td><code>shipment.cleared</code></td><td>Paquete desaduanado</td></tr>
+    <tr><td><code>shipment.delivered</code></td><td>Paquete entregado</td></tr>
+    <tr><td><code>shipment.exception</code></td><td>Excepcion en el envio</td></tr>
+    <tr><td><code>customer.created</code></td><td>Nuevo cliente registrado</td></tr>
+    <tr><td><code>reception.ready</code></td><td>Recepcion lista para retiro</td></tr>
+  </table>
+
+  <!-- POST /v1/webhooks -->
+  <div class="endpoint-block">
+    <span class="method post">POST</span>
+    <span class="endpoint-path">/v1/webhooks</span>
+    <p>Crea una suscripcion webhook. Retorna la suscripcion creada con su <code>secret</code> (solo visible una vez).</p>
+    <table>
+      <tr><th>Parametro</th><th>Tipo</th><th>Requerido</th><th>Descripcion</th></tr>
+      <tr><td><code>url</code></td><td>string</td><td class="required">Si</td><td>URL HTTPS de destino</td></tr>
+      <tr><td><code>events</code></td><td>string[]</td><td class="required">Si</td><td>Lista de eventos a suscribir</td></tr>
+    </table>
+  </div>
+
+  <h3>Verificacion de firma</h3>
+  <p>Cada solicitud webhook incluye los headers <code>X-Blumbox-Event</code> y <code>X-Blumbox-Signature</code>. Debes verificar la firma antes de procesar el evento.</p>
+
+  <div class="alert warn">Guarda el <code>secret</code> del webhook de forma segura. No se puede recuperar despues de la creacion.</div>
+
+  <div class="endpoint-block">
+    <span class="method get">GET</span>
+    <span class="endpoint-path">/v1/webhooks</span>
+    <p>Lista las suscripciones webhook activas.</p>
+  </div>
+
+  <div class="endpoint-block">
+    <span class="method delete">DELETE</span>
+    <span class="endpoint-path">/v1/webhooks/:id</span>
+    <p>Elimina una suscripcion webhook.</p>
+  </div>
+</div>
+<div class="section-right">
+  <h4>Crear webhook</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>bash</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>curl -X POST https://api.blumbox.do/v1/webhooks \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer eyJhbGci..." \
+  -d '{
+  "url": "https://mi-servidor.com/webhooks/blumbox",
+  "events": [
+    "shipment.delivered",
+    "shipment.exception",
+    "reception.ready"
+  ]
+}'</code></pre>
+  </div>
+  <div class="code-block">
+    <div class="code-block-header"><span>json — Respuesta 201</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>{
+  "id": "wh-001-uuid",
+  "url": "https://mi-servidor.com/webhooks/blumbox",
+  "events": [
+    "shipment.delivered",
+    "shipment.exception",
+    "reception.ready"
+  ],
+  "secret": "whsec_a1b2c3d4e5f6...",
+  "isActive": true,
+  "createdAt": "2026-03-24T09:00:00.000Z"
+}</code></pre>
+  </div>
+
+  <h4>Headers del webhook</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>headers</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>X-Blumbox-Event: shipment.delivered
+X-Blumbox-Signature: sha256=5d41402abc4b2a76b9719d911017c592...
+Content-Type: application/json</code></pre>
+  </div>
+
+  <h4>Verificar firma (Node.js)</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>javascript</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>const crypto = require('crypto');
+
+function verifyWebhook(body, signature, secret) {
+  const expected = crypto
+    .createHmac('sha256', secret)
+    .update(JSON.stringify(body))
+    .digest('hex');
+
+  return `sha256=${expected}` === signature;
+}
+
+// Uso en Express
+app.post('/webhooks/blumbox', (req, res) => {
+  const sig = req.headers['x-blumbox-signature'];
+  const event = req.headers['x-blumbox-event'];
+
+  if (!verifyWebhook(req.body, sig, WEBHOOK_SECRET)) {
+    return res.status(401).send('Firma invalida');
+  }
+
+  console.log(`Evento: ${event}`, req.body);
+  res.status(200).send('OK');
+});</code></pre>
+  </div>
+
+  <h4>Payload de ejemplo</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>json</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>{
+  "event": "shipment.delivered",
+  "timestamp": "2026-03-24T18:00:00.000Z",
+  "data": {
+    "shipmentId": "s1h2i3p4-...",
+    "trackingNumber": "1Z999AA10123456784",
+    "customerId": "a1b2c3d4-...",
+    "currentPhase": "DELIVERED"
+  }
+}</code></pre>
+  </div>
+</div>
+</div>
+
+<!-- ==================== FASES DE TRACKING ==================== -->
+<div class="section" id="fases-tracking">
+<div class="section-left">
+  <h2>Fases de Tracking</h2>
+  <p>Cada envio progresa a traves de una maquina de estados definida. Las transiciones son unidireccionales en el flujo principal, excepto por las fases de excepcion que pueden ocurrir desde cualquier punto.</p>
+
+  <h3>Fases del envio</h3>
+  <table>
+    <tr><th>Fase</th><th>Descripcion</th><th>Transiciones permitidas</th></tr>
+    <tr><td><code>CREATED</code></td><td>Envio registrado en el sistema</td><td>RECEIVED, EXCEPTION</td></tr>
+    <tr><td><code>RECEIVED</code></td><td>Paquete recibido en bodega de origen</td><td>IN_TRANSIT, EXCEPTION, RETURNED</td></tr>
+    <tr><td><code>IN_TRANSIT</code></td><td>Paquete en camino al destino</td><td>IN_CUSTOMS, EXCEPTION</td></tr>
+    <tr><td><code>IN_CUSTOMS</code></td><td>Paquete retenido en aduanas</td><td>CLEARED, EXCEPTION, RETURNED</td></tr>
+    <tr><td><code>CLEARED</code></td><td>Paquete desaduanado exitosamente</td><td>OUT_FOR_DELIVERY, EXCEPTION</td></tr>
+    <tr><td><code>OUT_FOR_DELIVERY</code></td><td>En ruta de entrega al cliente</td><td>DELIVERED, EXCEPTION, RETURNED</td></tr>
+    <tr><td><code>DELIVERED</code></td><td>Entregado al cliente</td><td><em>Estado final</em></td></tr>
+    <tr><td><code>EXCEPTION</code></td><td>Problema o incidencia</td><td>Cualquier fase anterior, RETURNED</td></tr>
+    <tr><td><code>RETURNED</code></td><td>Paquete devuelto al remitente</td><td><em>Estado final</em></td></tr>
+  </table>
+
+  <h3>Diagrama de flujo</h3>
+  <div class="state-flow">
+    <span class="state">CREATED</span><span class="arrow">&rarr;</span>
+    <span class="state">RECEIVED</span><span class="arrow">&rarr;</span>
+    <span class="state">IN_TRANSIT</span><span class="arrow">&rarr;</span>
+    <span class="state">IN_CUSTOMS</span><span class="arrow">&rarr;</span>
+    <span class="state">CLEARED</span><span class="arrow">&rarr;</span>
+    <span class="state">OUT_FOR_DELIVERY</span><span class="arrow">&rarr;</span>
+    <span class="state">DELIVERED</span>
+  </div>
+  <p class="muted" style="margin-top:12px">Las fases <code>EXCEPTION</code> y <code>RETURNED</code> pueden activarse desde cualquier fase intermedia.</p>
+</div>
+<div class="section-right">
+  <h4>Flujo tipico de un envio</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>Ejemplo de timeline</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>Mar 24, 08:00  CREATED
+  Envio registrado - Amazon orden #2026-0042
+
+Mar 24, 14:00  RECEIVED
+  Paquete recibido en bodega Miami (MIA-WH1)
+
+Mar 25, 06:00  IN_TRANSIT
+  Consolidado enviado via aerea MIA -> SDQ
+
+Mar 25, 18:00  IN_CUSTOMS
+  En proceso de desaduanaje - DGA
+
+Mar 26, 10:00  CLEARED
+  Desaduanado exitosamente
+
+Mar 26, 14:00  OUT_FOR_DELIVERY
+  En ruta - Sucursal Naco, Santo Domingo
+
+Mar 26, 16:30  DELIVERED
+  Entregado a Juan Perez - Firma recibida</code></pre>
+  </div>
+
+  <h4>Evento de excepcion</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>json</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>{
+  "type": "EXCEPTION",
+  "source": "MANUAL",
+  "rawStatus": "Paquete danado durante transporte",
+  "location": {
+    "ciudad": "Santo Domingo",
+    "pais": "DO",
+    "bodega": "SDQ-OFF1"
+  }
+}</code></pre>
+  </div>
+</div>
+</div>
+
+<!-- ==================== ERRORES ==================== -->
+<div class="section" id="errores">
+<div class="section-left">
+  <h2>Errores</h2>
+  <p>La API utiliza el formato <strong>RFC 7807 (Problem Details)</strong> para reportar errores. Todas las respuestas de error incluyen un cuerpo JSON con la estructura estandarizada.</p>
+
+  <h3>Estructura del error</h3>
+  <table>
+    <tr><th>Campo</th><th>Tipo</th><th>Descripcion</th></tr>
+    <tr><td><code>type</code></td><td>string</td><td>URI que identifica el tipo de error</td></tr>
+    <tr><td><code>title</code></td><td>string</td><td>Nombre legible del error</td></tr>
+    <tr><td><code>status</code></td><td>number</td><td>Codigo HTTP del error</td></tr>
+    <tr><td><code>detail</code></td><td>string</td><td>Descripcion especifica del problema</td></tr>
+    <tr><td><code>instance</code></td><td>string</td><td>Ruta de la solicitud que genero el error</td></tr>
+  </table>
+
+  <h3>Codigos de estado HTTP</h3>
+  <table>
+    <tr><th>Codigo</th><th>Significado</th><th>Descripcion</th></tr>
+    <tr><td><code>200</code></td><td>OK</td><td>Solicitud exitosa</td></tr>
+    <tr><td><code>201</code></td><td>Created</td><td>Recurso creado exitosamente</td></tr>
+    <tr><td><code>400</code></td><td>Bad Request</td><td>Parametros invalidos o faltantes</td></tr>
+    <tr><td><code>401</code></td><td>Unauthorized</td><td>Autenticacion requerida o invalida</td></tr>
+    <tr><td><code>403</code></td><td>Forbidden</td><td>Sin permisos para esta accion</td></tr>
+    <tr><td><code>404</code></td><td>Not Found</td><td>Recurso no encontrado</td></tr>
+    <tr><td><code>409</code></td><td>Conflict</td><td>Conflicto (ej. email duplicado)</td></tr>
+    <tr><td><code>429</code></td><td>Too Many Requests</td><td>Rate limit excedido (espera y reintenta)</td></tr>
+    <tr><td><code>500</code></td><td>Internal Error</td><td>Error interno del servidor</td></tr>
+  </table>
+</div>
+<div class="section-right">
+  <h4>Ejemplo de error 404</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>json — 404 Not Found</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>{
+  "type": "https://api.blumbox.do/problems/404",
+  "title": "NotFoundException",
+  "status": 404,
+  "detail": "Envio no encontrado",
+  "instance": "/v1/shipments/invalid-id"
+}</code></pre>
+  </div>
+
+  <h4>Ejemplo de error 400</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>json — 400 Bad Request</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>{
+  "type": "https://api.blumbox.do/problems/400",
+  "title": "BadRequestException",
+  "status": 400,
+  "detail": "El campo 'email' es requerido",
+  "instance": "/v1/customers/register"
+}</code></pre>
+  </div>
+
+  <h4>Ejemplo de error 409</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>json — 409 Conflict</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>{
+  "type": "https://api.blumbox.do/problems/409",
+  "title": "ConflictException",
+  "status": 409,
+  "detail": "Ya existe un cliente con el email juan@email.com",
+  "instance": "/v1/customers/register"
+}</code></pre>
+  </div>
+
+  <h4>Ejemplo de error 429</h4>
+  <div class="code-block">
+    <div class="code-block-header"><span>json — 429 Too Many Requests</span><button class="copy-btn" onclick="copyCode(this)">Copiar</button></div>
+    <pre><code>{
+  "type": "https://api.blumbox.do/problems/429",
+  "title": "TooManyRequestsException",
+  "status": 429,
+  "detail": "Rate limit excedido. Intenta de nuevo en 45 segundos.",
+  "instance": "/v1/shipments"
+}</code></pre>
+  </div>
+</div>
+</div>
+
+<!-- FOOTER -->
+<div style="padding:40px 48px;text-align:center;border-top:1px solid var(--border);color:var(--text-light);font-size:13px">
+  <p><strong>BLUMBOX</strong> Courier API v1 &mdash; Documentacion generada el 24 de marzo de 2026</p>
+  <p style="margin-top:4px">Para soporte tecnico: <a href="mailto:api@blumbox.do">api@blumbox.do</a></p>
+</div>
+
+</div><!-- /.main -->
+
+<script>
+function copyCode(btn){
+  const code=btn.closest('.code-block').querySelector('code');
+  const text=code.textContent;
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(()=>{
+      btn.textContent='Copiado';
+      setTimeout(()=>{btn.textContent='Copiar'},1500);
+    });
+  }else{
+    const ta=document.createElement('textarea');
+    ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();
+    document.execCommand('copy');document.body.removeChild(ta);
+    btn.textContent='Copiado';
+    setTimeout(()=>{btn.textContent='Copiar'},1500);
+  }
+}
+
+// Active sidebar link on scroll
+const sections=document.querySelectorAll('[id]');
+const navLinks=document.querySelectorAll('.sidebar a');
+function onScroll(){
+  let current='';
+  sections.forEach(s=>{
+    if(s.getBoundingClientRect().top<=120)current=s.id;
+  });
+  navLinks.forEach(a=>{
+    a.classList.toggle('active',a.getAttribute('href')==='#'+current);
+  });
+}
+window.addEventListener('scroll',onScroll,{passive:true});
+onScroll();
+</script>
+</body>
+</html>

@@ -16,6 +16,7 @@ import { ReceptionsModule } from "./receptions/receptions.module";
 import { CalculatorModule } from "./calculator/calculator.module";
 import { RateTablesModule } from "./rate-tables/rate-tables.module";
 import { NotificationsModule } from "./notifications/notifications.module";
+import { DocsModule } from "./docs/docs.module";
 import { AuditModule } from "./common/audit/audit.module";
 import { ProblemJsonExceptionFilter } from "./common/filters/problem-json.filter";
 import { RequestLoggerMiddleware } from "./common/middleware/request-logger.middleware";
@@ -43,6 +44,7 @@ import { RequestLoggerMiddleware } from "./common/middleware/request-logger.midd
     CalculatorModule,
     RateTablesModule,
     NotificationsModule,
+    DocsModule,
     HealthModule,
   ],
   providers: [{ provide: APP_FILTER, useClass: ProblemJsonExceptionFilter }],
