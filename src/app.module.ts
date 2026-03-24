@@ -21,6 +21,10 @@ import { PostAlertsModule } from "./post-alerts/post-alerts.module";
 import { DeliveryOrdersModule } from "./delivery-orders/delivery-orders.module";
 import { BulkImportModule } from "./bulk-import/bulk-import.module";
 import { InvoicesModule } from "./invoices/invoices.module";
+import { PaymentGatewayModule } from "./payment-gateway/payment-gateway.module";
+import { EcommerceModule } from "./ecommerce/ecommerce.module";
+import { ContainersModule } from "./containers/containers.module";
+import { DgaModule } from "./dga/dga.module";
 import { AuditModule } from "./common/audit/audit.module";
 import { ProblemJsonExceptionFilter } from "./common/filters/problem-json.filter";
 import { RequestLoggerMiddleware } from "./common/middleware/request-logger.middleware";
@@ -53,6 +57,10 @@ import { RequestLoggerMiddleware } from "./common/middleware/request-logger.midd
     DeliveryOrdersModule,
     BulkImportModule,
     InvoicesModule,
+    PaymentGatewayModule,
+    EcommerceModule,
+    ContainersModule,
+    DgaModule,
     HealthModule,
   ],
   providers: [{ provide: APP_FILTER, useClass: ProblemJsonExceptionFilter }],

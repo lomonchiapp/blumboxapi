@@ -12,4 +12,11 @@ export const envValidationSchema = Joi.object({
   SMTP_PORT: Joi.number().optional(),
   SMTP_USER: Joi.string().optional(),
   SMTP_PASS: Joi.string().optional(),
+
+  // Payment gateways (optional — gateway only works when configured)
+  STRIPE_SECRET_KEY: Joi.string().optional(),
+  STRIPE_WEBHOOK_SECRET: Joi.string().optional(),
+  PAYPAL_CLIENT_ID: Joi.string().optional(),
+  PAYPAL_CLIENT_SECRET: Joi.string().optional(),
+  PAYPAL_WEBHOOK_ID: Joi.string().optional(),
 });

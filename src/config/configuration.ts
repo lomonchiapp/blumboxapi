@@ -11,4 +11,13 @@ export default () => ({
     user: process.env.SMTP_USER ?? "",
     pass: process.env.SMTP_PASS ?? "",
   },
+  stripe: {
+    secretKey: process.env.STRIPE_SECRET_KEY ?? "",
+    webhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? "",
+  },
+  paypal: {
+    clientId: process.env.PAYPAL_CLIENT_ID ?? "",
+    clientSecret: process.env.PAYPAL_CLIENT_SECRET ?? "",
+    webhookId: process.env.PAYPAL_WEBHOOK_ID ?? "",
+  },
 });

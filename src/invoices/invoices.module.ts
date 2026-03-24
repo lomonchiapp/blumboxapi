@@ -15,6 +15,6 @@ import { CreditNotesService } from "./credit-notes.service";
     CustomerInvoicesController,
   ],
   providers: [InvoicesService, PaymentsService, CreditNotesService],
-  exports: [InvoicesService],
+  exports: [InvoicesService, PaymentsService],
 })
 export class InvoicesModule {}
