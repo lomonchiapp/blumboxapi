@@ -1,4 +1,5 @@
 import { RequestMethod, ValidationPipe } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
@@ -8,7 +9,18 @@ async function bootstrap() {
     logger: ["error", "warn", "log"],
   });
 
-  app.enableCors({ origin: true });
+  const config = app.get(ConfigService);
+
+  // CORS — configurable via CORS_ORIGINS env (comma-separated), defaults to allow all
+  const corsOrigins = config.get<string>("corsOrigins");
+  if (corsOrigins) {
+    app.enableCors({ origin: corsOrigins.split(",").map((o) => o.trim()) });
+  } else {
+    app.enableCors({ origin: true });
+  }
+
+  // Graceful shutdown
+  app.enableShutdownHooks();
 
   app.setGlobalPrefix("v1", {
     exclude: [
@@ -29,10 +41,12 @@ async function bootstrap() {
     })
   );
 
-  const config = new DocumentBuilder()
+  const swaggerConfig = new DocumentBuilder()
     .setTitle("Blumbox Courier API")
     .setDescription(
-      "API REST multi-tenant para tracking de envíos. Autenticación: `X-Api-Key` + `X-Tenant-Id`, o Bearer JWT desde `POST /v1/auth/token`."
+      "API REST multi-tenant para tracking de envíos, clientes, casilleros, pre-alertas y más. " +
+      "Autenticación: `X-Api-Key` + `X-Tenant-Id`, Bearer JWT desde `POST /v1/auth/token`, " +
+      "o Customer JWT desde `POST /v1/customers/login`."
     )
     .setVersion("1.0.0")
     .addApiKey({ type: "apiKey", name: "X-Api-Key", in: "header" })
@@ -40,13 +54,13 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
 
-  const document = SwaggerModule.createDocument(app, config);
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup("docs", app, document, {
     jsonDocumentUrl: "openapi.json",
     swaggerOptions: { persistAuthorization: true },
   });
 
-  const port = process.env.PORT ?? 3001;
+  const port = config.get<number>("port") ?? 3001;
   await app.listen(port);
   console.warn(`Blumbox API listening on http://localhost:${port}`);
   console.warn(`OpenAPI: http://localhost:${port}/docs`);

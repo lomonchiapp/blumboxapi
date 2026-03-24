@@ -8,15 +8,24 @@ datasource db {
 }
 
 model Tenant {
-  id        String   @id @default(uuid())
-  slug      String   @unique
-  name      String
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id               String   @id @default(uuid())
+  slug             String   @unique
+  name             String
+  casilleroPrefix  String   @default("BLX") @map("casillero_prefix")
+  casilleroCounter Int      @default(0) @map("casillero_counter")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
 
-  apiKeys   ApiKey[]
-  shipments Shipment[]
-  events    TrackingEvent[]
+  apiKeys               ApiKey[]
+  shipments             Shipment[]
+  events                TrackingEvent[]
+  customers             Customer[]
+  branches              Branch[]
+  preAlerts             PreAlert[]
+  receptions            Reception[]
+  rateTables            RateTable[]
+  notificationTemplates NotificationTemplate[]
+  webhookSubscriptions  WebhookSubscription[]
 }
 
 model ApiKey {
@@ -54,11 +63,17 @@ model Shipment {
   createdAt       DateTime       @default(now()) @map("created_at")
   updatedAt       DateTime       @updatedAt @map("updated_at")
 
-  tenant Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  events TrackingEvent[]
+  customerId String?       @map("customer_id")
+
+  tenant     Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customer   Customer?       @relation(fields: [customerId], references: [id])
+  events     TrackingEvent[]
+  preAlerts  PreAlert[]
+  receptions Reception[]
 
   @@unique([tenantId, trackingNumber])
   @@index([tenantId])
+  @@index([tenantId, customerId])
   @@map("shipments")
 }
 
@@ -116,4 +131,290 @@ enum EventSource {
   INTEGRATION
   MANUAL
   SYSTEM
+}
+
+// ─── Phase 0: Audit ───
+
+model AuditLog {
+  id         String    @id @default(uuid())
+  tenantId   String    @map("tenant_id")
+  actor      String
+  actorType  ActorType @map("actor_type")
+  action     String
+  resource   String
+  resourceId String?   @map("resource_id")
+  meta       Json      @default("{}")
+  ip         String?
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  @@index([tenantId, createdAt])
+  @@index([tenantId, resource, resourceId])
+  @@map("audit_logs")
+}
+
+enum ActorType {
+  API_KEY
+  CUSTOMER
+  SYSTEM
+}
+
+// ─── Phase 1: Customers ───
+
+model Customer {
+  id              String     @id @default(uuid())
+  tenantId        String     @map("tenant_id")
+  casillero       String
+  email           String
+  passwordHash    String     @map("password_hash")
+  firstName       String     @map("first_name")
+  lastName        String     @map("last_name")
+  phone           String?
+  idType          IdDocType? @map("id_type")
+  idNumber        String?    @map("id_number")
+  address         Json?
+  isActive        Boolean    @default(true) @map("is_active")
+  emailVerifiedAt DateTime?  @map("email_verified_at")
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+
+  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  shipments Shipment[]
+  preAlerts PreAlert[]
+
+  @@unique([tenantId, casillero])
+  @@unique([tenantId, email])
+  @@index([tenantId])
+  @@index([tenantId, idNumber])
+  @@map("customers")
+}
+
+enum IdDocType {
+  CEDULA
+  PASSPORT
+  RNC
+  OTHER
+}
+
+// ─── Phase 2: Branches ───
+
+model Branch {
+  id          String     @id @default(uuid())
+  tenantId    String     @map("tenant_id")
+  name        String
+  code        String
+  type        BranchType @default(WAREHOUSE)
+  address     Json
+  coordinates Json?
+  phone       String?
+  email       String?
+  hours       Json?
+  isActive    Boolean    @default(true) @map("is_active")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  tenant     Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  receptions Reception[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId])
+  @@map("branches")
+}
+
+enum BranchType {
+  WAREHOUSE
+  PICKUP_POINT
+  OFFICE
+  SORTING_CENTER
+}
+
+// ─── Phase 3: Pre-Alerts ───
+
+model PreAlert {
+  id             String         @id @default(uuid())
+  tenantId       String         @map("tenant_id")
+  customerId     String         @map("customer_id")
+  trackingNumber String         @map("tracking_number")
+  carrier        String?
+  store          String?
+  description    String?
+  estimatedValue Decimal?       @map("estimated_value") @db.Decimal(12, 2)
+  currency       String         @default("USD")
+  category       String?
+  invoiceUrl     String?        @map("invoice_url")
+  status         PreAlertStatus @default(PENDING)
+  shipmentId     String?        @map("shipment_id")
+  processedAt    DateTime?      @map("processed_at")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customer Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  shipment Shipment? @relation(fields: [shipmentId], references: [id])
+
+  @@unique([tenantId, trackingNumber])
+  @@index([tenantId, customerId])
+  @@index([tenantId, status])
+  @@map("pre_alerts")
+}
+
+enum PreAlertStatus {
+  PENDING
+  RECEIVED
+  PROCESSED
+  CANCELLED
+}
+
+// ─── Phase 4: Receptions ───
+
+model Reception {
+  id               String          @id @default(uuid())
+  tenantId         String          @map("tenant_id")
+  shipmentId       String          @map("shipment_id")
+  branchId         String          @map("branch_id")
+  customerId       String?         @map("customer_id")
+  weightLbs        Decimal?        @map("weight_lbs") @db.Decimal(8, 2)
+  lengthCm         Decimal?        @map("length_cm") @db.Decimal(8, 2)
+  widthCm          Decimal?        @map("width_cm") @db.Decimal(8, 2)
+  heightCm         Decimal?        @map("height_cm") @db.Decimal(8, 2)
+  volumetricWeight Decimal?        @map("volumetric_weight") @db.Decimal(8, 2)
+  photos           Json            @default("[]")
+  notes            String?
+  charges          Json            @default("[]")
+  totalCharge      Decimal         @default(0) @map("total_charge") @db.Decimal(12, 2)
+  currency         String          @default("USD")
+  status           ReceptionStatus @default(PENDING)
+  receivedAt       DateTime        @default(now()) @map("received_at")
+  createdAt        DateTime        @default(now()) @map("created_at")
+  updatedAt        DateTime        @updatedAt @map("updated_at")
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  shipment Shipment @relation(fields: [shipmentId], references: [id])
+  branch   Branch   @relation(fields: [branchId], references: [id])
+
+  @@index([tenantId, receivedAt])
+  @@index([tenantId, shipmentId])
+  @@index([tenantId, customerId])
+  @@map("receptions")
+}
+
+enum ReceptionStatus {
+  PENDING
+  MEASURED
+  CHARGED
+  READY_FOR_PICKUP
+  DELIVERED
+}
+
+// ─── Phase 5: Rate Tables ───
+
+model RateTable {
+  id         String   @id @default(uuid())
+  tenantId   String   @map("tenant_id")
+  name       String
+  originZone String?  @map("origin_zone")
+  destZone   String?  @map("dest_zone")
+  isDefault  Boolean  @default(false) @map("is_default")
+  isActive   Boolean  @default(true) @map("is_active")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  tenant Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tiers  RateTier[]
+
+  @@index([tenantId])
+  @@map("rate_tables")
+}
+
+model RateTier {
+  id          String  @id @default(uuid())
+  rateTableId String  @map("rate_table_id")
+  minWeight   Decimal @map("min_weight") @db.Decimal(8, 2)
+  maxWeight   Decimal @map("max_weight") @db.Decimal(8, 2)
+  pricePerLb  Decimal @map("price_per_lb") @db.Decimal(8, 2)
+  flatFee     Decimal @default(0) @map("flat_fee") @db.Decimal(8, 2)
+  currency    String  @default("USD")
+
+  rateTable RateTable @relation(fields: [rateTableId], references: [id], onDelete: Cascade)
+
+  @@index([rateTableId])
+  @@map("rate_tiers")
+}
+
+// ─── Phase 6: Notifications ───
+
+model NotificationTemplate {
+  id        String              @id @default(uuid())
+  tenantId  String              @map("tenant_id")
+  event     String
+  channel   NotificationChannel
+  subject   String?
+  body      String              @db.Text
+  isActive  Boolean             @default(true) @map("is_active")
+  createdAt DateTime            @default(now()) @map("created_at")
+  updatedAt DateTime            @updatedAt @map("updated_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, event, channel])
+  @@map("notification_templates")
+}
+
+model NotificationLog {
+  id         String              @id @default(uuid())
+  tenantId   String              @map("tenant_id")
+  customerId String?             @map("customer_id")
+  channel    NotificationChannel
+  recipient  String
+  event      String
+  subject    String?
+  body       String              @db.Text
+  status     NotificationStatus  @default(PENDING)
+  error      String?
+  sentAt     DateTime?           @map("sent_at")
+  createdAt  DateTime            @default(now()) @map("created_at")
+
+  @@index([tenantId, createdAt])
+  @@index([tenantId, customerId])
+  @@map("notification_logs")
+}
+
+model WebhookSubscription {
+  id        String   @id @default(uuid())
+  tenantId  String   @map("tenant_id")
+  url       String
+  events    String[]
+  secret    String
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@map("webhook_subscriptions")
+}
+
+model CustomerNotificationPref {
+  id         String              @id @default(uuid())
+  tenantId   String              @map("tenant_id")
+  customerId String              @map("customer_id")
+  channel    NotificationChannel
+  event      String
+  enabled    Boolean             @default(true)
+
+  @@unique([tenantId, customerId, channel, event])
+  @@map("customer_notification_prefs")
+}
+
+enum NotificationChannel {
+  EMAIL
+  SMS
+  PUSH
+  WEBHOOK
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
 }

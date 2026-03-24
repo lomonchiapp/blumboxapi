@@ -14,6 +14,7 @@ import { ShipmentsService } from "./shipments.service";
 import { CreateShipmentDto } from "./dto/create-shipment.dto";
 import { AddEventDto } from "./dto/add-event.dto";
 import { ListShipmentsQueryDto } from "./dto/list-shipments-query.dto";
+import { ListEventsQueryDto } from "./dto/list-events-query.dto";
 
 @ApiTags("shipments")
 @ApiHeader({ name: "X-Tenant-Id", required: true })
@@ -49,14 +50,13 @@ export class ShipmentsController {
   listEvents(
     @Req() req: Request,
     @Param("id") id: string,
-    @Query("page") page?: string,
-    @Query("limit") limit?: string
+    @Query() query: ListEventsQueryDto
   ) {
     return this.shipments.listEvents(
       this.tenantId(req),
       id,
-      page ? parseInt(page, 10) : 1,
-      limit ? parseInt(limit, 10) : 50
+      query.page,
+      query.limit
     );
   }
 

@@ -3,4 +3,12 @@ export default () => ({
   nodeEnv: process.env.NODE_ENV ?? "development",
   jwtSecret: process.env.JWT_SECRET ?? "",
   apiKeyPepper: process.env.API_KEY_PEPPER ?? "",
+  customerJwtSecret: process.env.CUSTOMER_JWT_SECRET ?? process.env.JWT_SECRET ?? "",
+  corsOrigins: process.env.CORS_ORIGINS ?? "",
+  smtp: {
+    host: process.env.SMTP_HOST ?? "",
+    port: parseInt(process.env.SMTP_PORT ?? "587", 10),
+    user: process.env.SMTP_USER ?? "",
+    pass: process.env.SMTP_PASS ?? "",
+  },
 });
