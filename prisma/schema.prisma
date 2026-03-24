@@ -1,0 +1,119 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id        String   @id @default(uuid())
+  slug      String   @unique
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  apiKeys   ApiKey[]
+  shipments Shipment[]
+  events    TrackingEvent[]
+}
+
+model ApiKey {
+  id          String    @id @default(uuid())
+  tenantId    String    @map("tenant_id")
+  name        String
+  /// SHA-256 hex of the raw API key (never store plaintext)
+  keyHash     String    @map("key_hash")
+  /// First 12 chars after prefix for identification (e.g. blx_live_ab12)
+  keyPrefix   String    @map("key_prefix")
+  role        ApiRole   @default(INTEGRATION)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  lastUsedAt  DateTime? @map("last_used_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([keyHash])
+  @@map("api_keys")
+}
+
+enum ApiRole {
+  ADMIN
+  OPERATOR
+  INTEGRATION
+}
+
+model Shipment {
+  id              String         @id @default(uuid())
+  tenantId        String         @map("tenant_id")
+  trackingNumber  String         @map("tracking_number")
+  reference       String?
+  currentPhase    TrackingPhase  @default(CREATED) @map("current_phase")
+  metadata        Json           @default("{}")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+
+  tenant Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  events TrackingEvent[]
+
+  @@unique([tenantId, trackingNumber])
+  @@index([tenantId])
+  @@map("shipments")
+}
+
+model TrackingEvent {
+  id              String            @id @default(uuid())
+  tenantId        String            @map("tenant_id")
+  shipmentId      String            @map("shipment_id")
+  occurredAt      DateTime          @map("occurred_at")
+  type            TrackingEventType
+  rawStatus       String?           @map("raw_status")
+  location        Json?
+  source          EventSource
+  correlationId   String?           @map("correlation_id")
+  payload         Json              @default("{}")
+  idempotencyKey  String?           @map("idempotency_key")
+
+  shipment Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([shipmentId, idempotencyKey])
+  @@index([tenantId, occurredAt])
+  @@index([shipmentId])
+  @@map("tracking_events")
+}
+
+enum TrackingPhase {
+  CREATED
+  RECEIVED
+  IN_TRANSIT
+  IN_CUSTOMS
+  CLEARED
+  OUT_FOR_DELIVERY
+  DELIVERED
+  EXCEPTION
+  RETURNED
+}
+
+enum TrackingEventType {
+  CREATED
+  RECEIVED
+  DEPARTED
+  ARRIVED
+  IN_TRANSIT
+  CUSTOMS_IN
+  CUSTOMS_CLEARED
+  OUT_FOR_DELIVERY
+  DELIVERED
+  EXCEPTION
+  NOTE
+}
+
+enum EventSource {
+  SCAN
+  WEBHOOK
+  INTEGRATION
+  MANUAL
+  SYSTEM
+}
