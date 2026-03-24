@@ -17,6 +17,10 @@ import { CalculatorModule } from "./calculator/calculator.module";
 import { RateTablesModule } from "./rate-tables/rate-tables.module";
 import { NotificationsModule } from "./notifications/notifications.module";
 import { DocsModule } from "./docs/docs.module";
+import { PostAlertsModule } from "./post-alerts/post-alerts.module";
+import { DeliveryOrdersModule } from "./delivery-orders/delivery-orders.module";
+import { BulkImportModule } from "./bulk-import/bulk-import.module";
+import { InvoicesModule } from "./invoices/invoices.module";
 import { AuditModule } from "./common/audit/audit.module";
 import { ProblemJsonExceptionFilter } from "./common/filters/problem-json.filter";
 import { RequestLoggerMiddleware } from "./common/middleware/request-logger.middleware";
@@ -45,6 +49,10 @@ import { RequestLoggerMiddleware } from "./common/middleware/request-logger.midd
     RateTablesModule,
     NotificationsModule,
     DocsModule,
+    PostAlertsModule,
+    DeliveryOrdersModule,
+    BulkImportModule,
+    InvoicesModule,
     HealthModule,
   ],
   providers: [{ provide: APP_FILTER, useClass: ProblemJsonExceptionFilter }],
